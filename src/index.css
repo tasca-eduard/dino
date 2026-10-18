@@ -16,6 +16,42 @@ canvas {
   outline: none;
 }
 
+.gfx-error {
+  position: fixed;
+  top: 140px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  max-width: min(720px, 90vw);
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 2px solid #ff8a80;
+  background: rgba(90, 16, 12, 0.92);
+  color: #fff6e0;
+  font-size: 14px;
+  user-select: text;
+}
+
+.gfx-error pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 12px;
+  max-height: 240px;
+  overflow: auto;
+  margin: 8px 0;
+}
+
+.gfx-error button {
+  margin-right: 8px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  border: 1px solid #fff6e0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
 /* name tags rendered by drei <Html> above remote players */
 .nametag {
   white-space: nowrap;

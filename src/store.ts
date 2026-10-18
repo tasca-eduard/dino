@@ -31,6 +31,8 @@ export interface RaidUi extends RaidState {
 export interface GameState {
   phase: Phase;
   error: string | null;
+  /** rendering/runtime failure shown on top of the game (e.g. WebGL context lost, shader errors) */
+  gfxError: string | null;
   myId: number;
   myName: string;
   myDino: DinoType;
@@ -92,6 +94,7 @@ let chatId = 1;
 export const useGame = create<GameState>((set, get) => ({
   phase: 'menu',
   error: null,
+  gfxError: null,
   myId: 0,
   myName: '',
   myDino: 'raptor',
