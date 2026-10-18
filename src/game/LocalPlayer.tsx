@@ -55,7 +55,7 @@ export function LocalPlayer() {
   const st = useRef({
     grounded: true, jumps: 0, vx: 0, vz: 0,
     dashUntil: 0, dashX: 0, dashZ: 0,
-    sendAt: 0, actAt: 0, interactAt: 0, faceUntil: 0,
+    sendAt: 0, actAt: 0, interactAt: 0, faceUntil: 0, camDist: cam.dist,
   });
 
   useFrame((_, rawDt) => {
@@ -189,7 +189,10 @@ export function LocalPlayer() {
     tgt.set(me.x, me.y + DINO_HEIGHT[s.myDino] + 0.6, me.z);
     const cp = Math.cos(cam.pitch);
     dir.set(fx * cp, -Math.sin(cam.pitch), fz * cp);
-    camPos.copy(tgt).addScaledVector(dir, -cam.dist);
+    // pull the camera in front of buildings/rocks between it and the player
+    const wanted = cameraClearance(tgt, dir, cam.dist);
+    p.camDist = wanted < p.camDist ? wanted : p.camDist + (wanted - p.camDist) * Math.min(1, dt * 4);
+    camPos.copy(tgt).addScaledVector(dir, -p.camDist);
     const minY = Math.max(heightAt(world.heights, camPos.x, camPos.z), WATER_Y) + 0.5;
     if (camPos.y < minY) camPos.y = minY;
     camera.position.copy(camPos);
@@ -300,6 +303,30 @@ export function LocalPlayer() {
 }
 
 const round = (v: number) => Math.round(v * 100) / 100;
+
+/** Longest camera distance (up to `max`) along -dir from the target that doesn't enter a big obstacle. */
+function cameraClearance(from: THREE.Vector3, dir: THREE.Vector3, max: number): number {
+  let best = max;
+  const bx = -dir.x;
+  const bz = -dir.z;
+  const a = bx * bx + bz * bz;
+  if (a < 1e-6) return best;
+  for (const o of lookup.obstacles) {
+    if (o.r < 0.8) continue; // thin trunks would make the camera jitter
+    const r = o.r + 0.4;
+    const px = from.x - o.x;
+    const pz = from.z - o.z;
+    const c = px * px + pz * pz - r * r;
+    if (c < 0) continue;
+    const b = 2 * (px * bx + pz * bz);
+    const disc = b * b - 4 * a * c;
+    if (disc < 0) continue;
+    const s = (-b - Math.sqrt(disc)) / (2 * a);
+    if (s <= 0 || s >= best) continue;
+    if (from.y - dir.y * s < o.top) best = Math.max(1.6, s - 0.3);
+  }
+  return best;
+}
 
 function findCandidate(px: number, pz: number): Candidate | null {
   const s = game();

@@ -1,0 +1,13 @@
+# Render blueprint: hosts the authoritative game server (WebSockets) and the built client.
+# Render dashboard -> New -> Blueprint -> pick this repo.
+services:
+  - type: web
+    name: dino-farm
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"

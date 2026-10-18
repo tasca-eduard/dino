@@ -13,18 +13,39 @@ export function send(msg: ClientMsg) {
 export const sendAction = (act: Action) => send({ t: 'act', act });
 export const sendChat = (text: string) => send({ t: 'chat', text });
 
+/**
+ * The game server URL. Same origin by default (local dev proxy, or the Node server hosting the build).
+ * Static hosts like Vercel can't run the WebSocket server, so point VITE_SERVER_URL at it at build time,
+ * e.g. VITE_SERVER_URL=https://dino-farm.onrender.com
+ */
+function serverUrl(): string {
+  const configured = import.meta.env.VITE_SERVER_URL?.trim().replace(/\/+$/, '');
+  if (configured) return `${configured.replace(/^http/, 'ws')}/ws`;
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  return `${proto}://${location.host}/ws`;
+}
+
 export function connect(name: string, dino: DinoType) {
   const { set } = game();
   set({ phase: 'connecting', error: null, myName: name, myDino: dino, hp: DINOS[dino].hp, maxHp: DINOS[dino].hp });
-  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-  ws = new WebSocket(`${proto}://${location.host}/ws`);
-  ws.onopen = () => send({ t: 'join', name, dino });
-  ws.onmessage = (ev) => handle(JSON.parse(ev.data) as ServerMsg);
-  ws.onclose = () => {
-    set({ phase: 'menu', error: 'Disconnected from the farm server.' });
-    ws = null;
+  const socket = new WebSocket(serverUrl());
+  ws = socket;
+  let opened = false;
+  socket.onopen = () => {
+    opened = true;
+    send({ t: 'join', name, dino });
   };
-  ws.onerror = () => set({ error: 'Could not reach the game server. Is it running? (npm run dev)' });
+  socket.onmessage = (ev) => handle(JSON.parse(ev.data) as ServerMsg);
+  socket.onclose = (ev) => {
+    if (ws !== socket) return;
+    ws = null;
+    const error = opened
+      ? `Lost connection to the farm server${ev.code === 1006 ? ' (it may have restarted)' : ''}. Join again to continue.`
+      : import.meta.env.VITE_SERVER_URL
+        ? 'Could not reach the game server. If it is on a free host it may be waking up — try again in ~30 seconds.'
+        : 'Could not reach the game server. Locally, start it with "npm run dev". On a static host (e.g. Vercel), set VITE_SERVER_URL to your game server.';
+    set({ phase: 'menu', error });
+  };
 }
 
 /** Sync a Map<number, Ent> with a list of snapshot tuples; returns true when membership changed. */

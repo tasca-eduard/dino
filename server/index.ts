@@ -20,6 +20,11 @@ const MIME: Record<string, string> = {
 
 // Serves the production build (npm run build) so one process hosts everything.
 const http = createServer((req, res) => {
+  if (req.url === '/health') {
+    res.writeHead(200, { 'content-type': 'application/json', 'access-control-allow-origin': '*' });
+    res.end(JSON.stringify({ ok: true, players: game.playerCount }));
+    return;
+  }
   if (!existsSync(DIST)) {
     res.writeHead(200, { 'content-type': 'text/plain' });
     res.end('Dino Farm game server is running. In development open the Vite client at http://localhost:5173');
@@ -45,10 +50,15 @@ wss.on('connection', (ws) => {
     } catch {
       return;
     }
-    if (msg.t === 'join') {
-      if (playerId === null) playerId = game.addPlayer(ws, msg.name, msg.dino);
-    } else if (playerId !== null) {
-      game.handle(playerId, msg);
+    try {
+      if (msg.t === 'join') {
+        if (playerId === null) playerId = game.addPlayer(ws, msg.name, msg.dino);
+      } else if (playerId !== null) {
+        game.handle(playerId, msg);
+      }
+    } catch (err) {
+      // one bad message must never take the whole farm down
+      console.error('Error handling message', msg, err);
     }
   });
   ws.on('close', () => {
@@ -56,5 +66,14 @@ wss.on('connection', (ws) => {
   });
 });
 
+http.on('error', (err: NodeJS.ErrnoException) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`\n✖ Port ${PORT} is already in use — another Dino Farm server (or other app) is running.`);
+    console.error('  Stop it, or run with a different port: set PORT=3001 for both the server and Vite.\n');
+    process.exit(1);
+  }
+  throw err;
+});
+
 game.start();
-http.listen(PORT, () => console.log(`🦖 Dino Farm server on http://localhost:${PORT} (ws path /ws)`));
+http.listen(PORT, () => console.log(`Dino Farm server on http://localhost:${PORT} (ws path /ws)`));

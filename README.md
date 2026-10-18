@@ -16,11 +16,26 @@ Open http://localhost:5173 in a few browser tabs (or share your LAN IP) to play 
 Production: `npm run build && npm start` — the server then hosts the built client and the
 WebSocket on one port (`PORT`, default 3000).
 
+## Deploying
+
+The game needs a long-running Node process for the WebSocket server, so **static hosts like
+Vercel can only serve the client**. Two options:
+
+1. **All-in-one on Render** (simplest): Render dashboard → *New → Blueprint* → pick this repo.
+   `render.yaml` builds the client and starts the server; the Render URL is the full game.
+   (Railway / Fly.io work the same way: build `npm run build`, start `npm start`.)
+2. **Client on Vercel + server on Render**: deploy the server as above, then in Vercel →
+   Project → Settings → Environment Variables set
+   `VITE_SERVER_URL=https://<your-service>.onrender.com` and redeploy.
+
+Free Render instances sleep when idle; the first join after a while can take ~30–50 s.
+
 | Env var      | Default    | Meaning                                        |
 | ------------ | ---------- | ---------------------------------------------- |
 | `PORT`       | `3000`     | HTTP + WebSocket port                          |
 | `SEED`       | `20261018` | World generation seed                          |
 | `RAID_FIRST` | `150`      | Seconds until the first raid (use 30 to test)  |
+| `VITE_SERVER_URL` | same origin | *Client build-time:* game server URL when the client is hosted separately |
 
 Tests: with a server running, `npm run test:smoke -- ws://localhost:3000/ws` and
 `npm run test:raid -- ws://localhost:3000/ws` (start the server with `RAID_FIRST=3` for the raid test).

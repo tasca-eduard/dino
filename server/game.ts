@@ -194,8 +194,18 @@ export class Game {
     this.computeIrrigation();
   }
 
+  get playerCount() {
+    return this.players.size;
+  }
+
   start() {
-    setInterval(() => this.tick(), 1000 / WORLD.TICK_RATE);
+    setInterval(() => {
+      try {
+        this.tick();
+      } catch (err) {
+        console.error('Tick failed', err);
+      }
+    }, 1000 / WORLD.TICK_RATE);
   }
 
   // ================================================================ setup
