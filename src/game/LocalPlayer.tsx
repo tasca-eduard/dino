@@ -1,4 +1,4 @@
-﻿import { useFrame, useThree } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { useRef } from 'react';
 import * as THREE from 'three';
 import {
@@ -321,8 +321,8 @@ function findCandidate(px: number, pz: number): Candidate | null {
     if (n.amount <= 0) continue;
     consider(n.x, n.z, n.kind === 'tree' ? 0.5 * n.s : 0.9 * n.s, () =>
       n.kind === 'tree'
-        ? { kind: 'node', id: n.id, prompt: 'E Â· Chop tree', info: `${n.amount} wood left` }
-        : { kind: 'node', id: n.id, prompt: 'E Â· Mine rock', info: `${n.amount} stone left` },
+        ? { kind: 'node', id: n.id, prompt: 'E · Chop tree', info: `${n.amount} wood left` }
+        : { kind: 'node', id: n.id, prompt: 'E · Mine rock', info: `${n.amount} stone left` },
     );
   }
   for (const pl of Object.values(s.plants)) {
@@ -332,29 +332,29 @@ function findCandidate(px: number, pz: number): Candidate | null {
     consider(x, z, 0.3, () => {
       const def = PLANTS[pl.sp];
       if (pl.wild) {
-        const danger = pl.sp === 'snapjaw' ? ' â€” careful, it bites!' : pl.sp === 'thornberry' ? ' â€” thorny!' : pl.sp === 'wanderroot' ? ' â€” catch it!' : '';
-        return { kind: 'plant', id: pl.id, prompt: `E Â· Collect wild ${def.name} seeds`, info: `Wild plant${danger}` };
+        const danger = pl.sp === 'snapjaw' ? ' — careful, it bites!' : pl.sp === 'thornberry' ? ' — thorny!' : pl.sp === 'wanderroot' ? ' — catch it!' : '';
+        return { kind: 'plant', id: pl.id, prompt: `E · Collect wild ${def.name} seeds`, info: `Wild plant${danger}` };
       }
       const wet = tileWet(tileIndex(pl.tx, pl.tz));
-      const status = `${STAGES[pl.stage]} ${Math.round(pl.growth * 100)}% Â· tame ${pl.tame}% Â· ${wet ? 'ðŸ’§ watered' : 'ðŸœï¸ dry â€” water it!'}`;
-      if (pl.feral) return { kind: 'plant', id: pl.id, prompt: `E Â· Calm the FERAL ${def.name}`, info: `${def.feral} Â· tame ${pl.tame}% (60% calms it)` };
-      if (pl.stage === 3 && pl.tame >= 100) return { kind: 'plant', id: pl.id, prompt: `E Â· Harvest ${def.name}`, info: status };
-      if (pl.tame >= 100) return { kind: 'plant', id: pl.id, prompt: `${def.name} (tamed)`, info: `${status} Â· ${def.tamed}` };
-      return { kind: 'plant', id: pl.id, prompt: `E Â· Tend ${def.name}`, info: status };
+      const status = `${STAGES[pl.stage]} ${Math.round(pl.growth * 100)}% · tame ${pl.tame}% · ${wet ? '💧 watered' : '🏜️ dry — water it!'}`;
+      if (pl.feral) return { kind: 'plant', id: pl.id, prompt: `E · Calm the FERAL ${def.name}`, info: `${def.feral} · tame ${pl.tame}% (60% calms it)` };
+      if (pl.stage === 3 && pl.tame >= 100) return { kind: 'plant', id: pl.id, prompt: `E · Harvest ${def.name}`, info: status };
+      if (pl.tame >= 100) return { kind: 'plant', id: pl.id, prompt: `${def.name} (tamed)`, info: `${status} · ${def.tamed}` };
+      return { kind: 'plant', id: pl.id, prompt: `E · Tend ${def.name}`, info: status };
     });
   }
   for (const a of world.animals.values()) {
     const type = ANIMAL_KINDS[a.type];
     consider(a.x, a.z, ANIMALS[type].radius, () => ({
-      kind: 'animal', id: a.id, prompt: `E Â· Feed ${ANIMALS[type].name} (1 ðŸ–)`,
+      kind: 'animal', id: a.id, prompt: `E · Feed ${ANIMALS[type].name} (1 🍖)`,
       info: a.hungry ? 'Hungry! It stopped producing.' : `Produces ${ANIMALS[type].produce} when fed`,
     }));
   }
   for (const b of Object.values(s.buildings)) {
     const def = BUILDINGS[b.type];
     consider(b.x, b.z, def.radius, () => {
-      if (b.hp < def.hp) return { kind: 'building', id: b.id, prompt: `E Â· Repair ${def.name}`, info: `${b.hp}/${def.hp} hp` };
-      if (b.type === 'house') return { kind: 'building', id: b.id, prompt: 'E Â· Trade at the Hut', info: 'Trades all eggs, wool & spores' };
+      if (b.hp < def.hp) return { kind: 'building', id: b.id, prompt: `E · Repair ${def.name}`, info: `${b.hp}/${def.hp} hp` };
+      if (b.type === 'house') return { kind: 'building', id: b.id, prompt: 'E · Trade at the Hut', info: 'Trades all eggs, wool & spores' };
       return null;
     });
   }
@@ -377,15 +377,15 @@ function nearestBuilding(x: number, z: number): number | null {
 function describeTile(tx: number, tz: number): string {
   const i = tileIndex(tx, tz);
   const h = (world.heights[tz * (WORLD.N + 1) + tx] + world.heights[tz * (WORLD.N + 1) + tx + 1]) / 2;
-  if (h < 0) return 'Water Â· refill your can here';
+  if (h < 0) return 'Water · refill your can here';
   switch (world.tiles[i]) {
     case TILE_T.ROUGH:
-      return 'Rough ground Â· clear it with the Shovel';
+      return 'Rough ground · clear it with the Shovel';
     case TILE_T.SAND:
-      return 'Sand Â· too loose to farm';
+      return 'Sand · too loose to farm';
     case TILE_T.SOIL:
-      return lookup.plantByTile.has(i) ? 'Planted soil' : `Tilled soil Â· ${tileWet(i) ? 'ðŸ’§ watered' : 'dry'} Â· ready for seeds`;
+      return lookup.plantByTile.has(i) ? 'Planted soil' : `Tilled soil · ${tileWet(i) ? '💧 watered' : 'dry'} · ready for seeds`;
     default:
-      return 'Grass Â· till it with the Hoe';
+      return 'Grass · till it with the Hoe';
   }
 }
