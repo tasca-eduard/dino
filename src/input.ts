@@ -1,4 +1,5 @@
 import { BUILD_ORDER, PLANT_ORDER, TOOLS } from '../shared/constants';
+import { QUALITY, setQuality } from './game/quality';
 import { sendAction } from './net';
 import { game } from './store';
 
@@ -56,6 +57,9 @@ export function initInput(canvas: HTMLElement): () => void {
         keys.clear();
         s.set({ chatOpen: true });
         document.exitPointerLock?.();
+        break;
+      case 'KeyG':
+        if (!e.repeat) setQuality((s.gfxLevel + 1) % QUALITY.length);
         break;
       case 'KeyF':
         if (!e.repeat) sendAction({ a: 'heal' });

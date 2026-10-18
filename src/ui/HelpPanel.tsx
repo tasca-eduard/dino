@@ -31,6 +31,7 @@ const CONTROLS: [string, string][] = [
   ['T', 'Rotate building'],
   ['X', 'Demolish (hammer)'],
   ['F', 'Eat nectar to heal'],
+  ['G', 'Graphics quality (High / No shadows / Safe)'],
   ['H', 'Toggle this help'],
   ['Enter', 'Chat'],
   ['Esc', 'Release mouse'],

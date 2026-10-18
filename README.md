@@ -53,6 +53,7 @@ Tests: with a server running, `npm run test:smoke -- ws://localhost:3000/ws` and
 | 1–8            | Hoe, Shovel, Watering Can, Seed Pouch, Hammer, Club, Sling, Bola |
 | R / T / X      | Cycle seed or building / rotate building / demolish        |
 | F              | Drink nectar to heal                                        |
+| G              | Graphics quality: High / No shadows / Safe (also `?gfx=0-2`; drops automatically if the GPU driver resets) |
 | H / Enter      | Help / chat                                                 |
 
 ### Dinosaurs

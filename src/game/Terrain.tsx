@@ -110,7 +110,11 @@ export function Terrain() {
     }
   };
 
-  useLayoutEffect(() => () => geometry.dispose(), [geometry]);
+  useLayoutEffect(() => {
+    // (re)mounting (e.g. after a graphics quality change) needs the whole mesh written again
+    for (let i = 0; i < N * N; i++) world.dirtyTiles.add(i);
+    return () => geometry.dispose();
+  }, [geometry]);
 
   useFrame((_, dt) => {
     let dirty = false;

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { DinoType, PlantSpecies, Resources, SeedStock } from '../shared/constants';
 import { CAN_CAPACITY, DINOS } from '../shared/constants';
 import type { BuildingView, NodeView, PlantView, PlayerInfo, RaidState } from '../shared/protocol';
+import { initialQuality } from './game/quality';
 
 export type Phase = 'menu' | 'connecting' | 'playing';
 export type ToastKind = 'info' | 'warn' | 'good';
@@ -33,6 +34,8 @@ export interface GameState {
   error: string | null;
   /** rendering/runtime failure shown on top of the game (e.g. WebGL context lost, shader errors) */
   gfxError: string | null;
+  /** index into QUALITY (game/quality.ts); changing it remounts the 3D canvas */
+  gfxLevel: number;
   myId: number;
   myName: string;
   myDino: DinoType;
@@ -95,6 +98,7 @@ export const useGame = create<GameState>((set, get) => ({
   phase: 'menu',
   error: null,
   gfxError: null,
+  gfxLevel: initialQuality(),
   myId: 0,
   myName: '',
   myDino: 'raptor',
