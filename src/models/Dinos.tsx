@@ -256,23 +256,23 @@ const ANKYLO = once(() => {
     .add(G.torus, 'dark', [0, SH.y, 0], [SH.rx + 0.01, SH.rz + 0.01, 1], [PI / 2, 0, 0]);
   const spike = (alpha: number, beta: number, s: V3, off: number) => {
     const { p, n } = shellPoint(alpha, beta);
-    body.add(G.ico, 'dark', p, s[0] * 1.25);
+    body.add(G.ico, 'dark', p, s[0] * 0.95);
     body.addDir(G.cone, 'accent', [p[0] + n[0] * off, p[1] + n[1] * off, p[2] + n[2] * off], n, s);
   };
-  for (const beta of [-0.95, -0.5, -0.05, 0.4, 0.85]) spike(0, beta, [0.1, 0.26, 0.1], 0.09);
+  for (const beta of [-0.95, -0.5, -0.05, 0.4, 0.85]) spike(0, beta, [0.12, 0.34, 0.12], 0.12);
   for (const side of [-1, 1]) {
-    for (const beta of [-0.8, -0.38, 0.05, 0.48, 0.88]) spike(side * 0.62, beta, [0.085, 0.2, 0.085], 0.07);
-    for (const beta of [-0.6, -0.15, 0.3, 0.75]) spike(side * 1.12, beta, [0.08, 0.18, 0.08], 0.06);
-    for (const beta of [-0.75, -0.3, 0.15, 0.6]) spike(side * 1.5, beta, [0.1, 0.34, 0.1], 0.14);
-    spike(side * 1.3, 0.98, [0.11, 0.4, 0.11], 0.16);
+    for (const beta of [-0.8, -0.38, 0.05, 0.48, 0.88]) spike(side * 0.62, beta, [0.11, 0.28, 0.11], 0.1);
+    for (const beta of [-0.6, -0.15, 0.3, 0.75]) spike(side * 1.12, beta, [0.1, 0.24, 0.1], 0.08);
+    for (const beta of [-0.75, -0.3, 0.15, 0.6]) spike(side * 1.5, beta, [0.12, 0.4, 0.12], 0.16);
+    spike(side * 1.3, 0.98, [0.13, 0.46, 0.13], 0.18);
   }
 
   const head = new Kit()
     .add(G.sphere, 'skin', [0, 0.6, 1.25], [0.32, 0.26, 0.3])
     .add(G.ball, 'skin', [0, 0.58, 1.58], [0.34, 0.24, 0.32])
     .add(G.hemi, 'dark', [0, 0.65, 1.56], [0.335, 0.15, 0.315])
-    .add(G.box, 'belly', [0, 0.5, 1.86], [0.3, 0.16, 0.16])
-    .add(G.box, 'dark', [0, 0.47, 1.94], [0.26, 0.06, 0.04]);
+    .add(G.sphere, 'belly', [0, 0.5, 1.84], [0.19, 0.1, 0.12])
+    .add(G.sphere, 'dark', [0, 0.45, 1.88], [0.15, 0.04, 0.08]);
   for (const s of [-1, 1]) {
     head.addDir(G.cone, 'accent', [s * 0.33, 0.73, 1.38], [s * 0.8, 0.35, -0.5], [0.06, 0.26, 0.06]);
     head.addDir(G.cone, 'accent', [s * 0.36, 0.5, 1.5], [s, -0.3, 0], [0.05, 0.16, 0.05]);
@@ -345,7 +345,7 @@ function Ankylo({ mats, skin, animRef }: { mats: SlotMats; skin: THREE.MeshStand
     const tq = bump(now, a.attackAt, 450);
     const tp = Math.max(0, (now - a.attackAt) / 450);
     const swing = tp < 1 ? Math.sin(tp * PI * 2) : 0;
-    body.current.position.y = AK.body[1] + Math.abs(Math.cos(s.ph)) * 0.04 * A + Math.sin(t * 1.8) * 0.01 - tq * 0.06;
+    body.current.position.y = AK.body[1] - 0.22 + Math.abs(Math.cos(s.ph)) * 0.04 * A + Math.sin(t * 1.8) * 0.01 - tq * 0.06;
     body.current.rotation.z = Math.sin(s.ph) * 0.04 * A;
     body.current.rotation.x = -tq * 0.12;
     head.current.rotation.x = Math.sin(s.ph * 2) * 0.05 * A + tq * 0.2;
@@ -422,23 +422,24 @@ const PTERO = once(() => {
   // wings (right side; the left one is mirrored)
   const S = PT.shoulder;
   const W = PT.wrist;
+  const innerMem = new Kit().add(membrane([add3(S, [0, 0, 0.06]), W, add3(S, [0.95, 0, -0.42]), add3(S, [0, -0.02, -0.66])], [
+    [0, 1, 2],
+    [0, 2, 3],
+  ]), 'membrane');
   const inner = new Kit()
-    .add(membrane([add3(S, [0, 0, 0.06]), W, add3(S, [0.95, 0, -0.28]), add3(S, [0, -0.02, -0.62])], [
-      [0, 1, 2],
-      [0, 2, 3],
-    ]), 'membrane')
     .between(G.cyl, 'skin', S, W, 0.045)
     .add(G.sphere, 'skin', W, 0.06);
   const T = add3(W, [1.1, 0, -0.44]);
-  const Rr = add3(W, [0, -0.01, -0.32]);
-  const P1 = lerp3(W, T, 0.62);
-  const P2 = lerp3(Rr, T, 0.62);
-  const outer = new Kit()
+  const Rr = add3(W, [0, -0.01, -0.44]);
+  const P1 = lerp3(W, T, 0.45);
+  const P2 = lerp3(Rr, T, 0.45);
+  const outerMem = new Kit()
     .add(membrane([W, P1, P2, Rr], [
       [0, 1, 2],
       [0, 2, 3],
     ]), 'membrane')
-    .add(membrane([P1, T, P2], [[0, 1, 2]]), 'accent')
+    .add(membrane([P1, T, P2], [[0, 1, 2]]), 'accent');
+  const outer = new Kit()
     .between(G.cyl, 'skin', W, T, 0.03)
     .add(G.cone, 'claw', add3(W, [0.02, 0.0, 0.08]), [0.02, 0.08, 0.02], [PI / 2, 0, 0]);
 
@@ -448,7 +449,16 @@ const PTERO = once(() => {
     .between(G.cyl, 'skin', [H[0], 0.36, -0.1], [H[0], 0.05, -0.12], 0.03)
     .add(G.box, 'dark', [H[0], 0.02, -0.05], [0.09, 0.04, 0.16]);
 
-  return { body: body.build(), head: head.build(), jaw: jaw.build(), inner: inner.build(), outer: outer.build(), leg: leg.build() };
+  return {
+    body: body.build(),
+    head: head.build(),
+    jaw: jaw.build(),
+    inner: inner.build(),
+    innerMem: innerMem.build(),
+    outer: outer.build(),
+    outerMem: outerMem.build(),
+    leg: leg.build(),
+  };
 });
 
 function Ptero({ mats, skin, animRef }: { mats: SlotMats; skin: THREE.MeshStandardMaterial; animRef: AnimRef }) {
@@ -461,6 +471,10 @@ function Ptero({ mats, skin, animRef }: { mats: SlotMats; skin: THREE.MeshStanda
   const inL = useRef<Grp>(null!);
   const outR = useRef<Grp>(null!);
   const outL = useRef<Grp>(null!);
+  const memIR = useRef<Grp>(null!);
+  const memIL = useRef<Grp>(null!);
+  const memOR = useRef<Grp>(null!);
+  const memOL = useRef<Grp>(null!);
   const hipR = useRef<Grp>(null!);
   const hipL = useRef<Grp>(null!);
   const st = useScratch();
@@ -487,13 +501,16 @@ function Ptero({ mats, skin, animRef }: { mats: SlotMats; skin: THREE.MeshStanda
     s.ph += dt * (3 + a.speed * 1.6);
     const wad = Math.sin(s.ph);
 
-    const wings: [THREE.Group, THREE.Group, number][] = [
-      [inR.current, outR.current, 0],
-      [inL.current, outL.current, PI],
+    const tuck = lerp(1, 0.2, f);
+    const wings: [Grp, Grp, Grp, Grp, number][] = [
+      [inR.current, outR.current, memIR.current, memOR.current, 0],
+      [inL.current, outL.current, memIL.current, memOL.current, PI],
     ];
-    for (const [inn, out, off] of wings) {
+    for (const [inn, out, mi, mo, off] of wings) {
       inn.rotation.set(Math.sin(s.ph + off) * 0.35 * s.A * f, 0.35 * f, lerp(flap, -1.25, f));
-      out.rotation.set(0, 2.75 * f, lerp(flap2, 0.15, f));
+      out.rotation.set(0, 2.8 * f, lerp(flap2, 0.15, f));
+      mi.scale.z = tuck;
+      mo.scale.z = tuck;
     }
     hipR.current.rotation.x = lerp(1.35, Math.sin(s.ph + PI / 2) * 0.5 * s.A, f);
     hipL.current.rotation.x = lerp(1.35, Math.sin(s.ph + PI * 1.5) * 0.5 * s.A, f);
@@ -508,11 +525,17 @@ function Ptero({ mats, skin, animRef }: { mats: SlotMats; skin: THREE.MeshStanda
     applyHurt(root.current, skin, now, a.hurtAt);
   });
 
-  const wing = (inn: RefObject<Grp>, out: RefObject<Grp>) => (
+  const wing = (inn: RefObject<Grp>, out: RefObject<Grp>, mi: RefObject<Grp>, mo: RefObject<Grp>) => (
     <Joint at={PT.shoulder} gref={inn}>
       <Parts parts={P.inner} mats={mats} />
+      <Joint at={PT.shoulder} gref={mi}>
+        <Parts parts={P.innerMem} mats={mats} />
+      </Joint>
       <Joint at={PT.wrist} gref={out}>
         <Parts parts={P.outer} mats={mats} />
+        <Joint at={PT.wrist} gref={mo}>
+          <Parts parts={P.outerMem} mats={mats} />
+        </Joint>
       </Joint>
     </Joint>
   );
@@ -527,8 +550,8 @@ function Ptero({ mats, skin, animRef }: { mats: SlotMats; skin: THREE.MeshStanda
             <Parts parts={P.jaw} mats={mats} />
           </Joint>
         </Joint>
-        {wing(inR, outR)}
-        <Mirror>{wing(inL, outL)}</Mirror>
+        {wing(inR, outR, memIR, memOR)}
+        <Mirror>{wing(inL, outL, memIL, memOL)}</Mirror>
       </Joint>
       <Joint at={PT.hip} gref={hipR}>
         <Parts parts={P.leg} mats={mats} />
@@ -581,14 +604,6 @@ const SPINO = once(() => {
     .add(sailGeometry(-0.75, 1.1, 0.95, 0.06, true), 'accent', [0, 1.5, 0])
     .add(sailGeometry(-0.6, 0.95, 0.32, 0.1, false), 'accentDark', [0, 1.5, 0]);
   for (const s of [-1, 1]) {
-    for (const [y, z] of [
-      [1.38, 0.1],
-      [1.48, -0.3],
-      [1.22, 0.55],
-      [1.5, 0.6],
-    ]) {
-      torso.add(G.sphere, 'dark', [s * (0.5 * Math.sqrt(Math.max(0, 1 - ((y - 1.3) / 0.55) ** 2 - ((z - 0.3) / 1.15) ** 2)) - 0.01), y, z], [0.04, 0.08, 0.11]);
-    }
     torso
       .add(G.sphere, 'skin', [s * 0.36, 1.25, 1.35], [0.07, 0.17, 0.08], [0.6, 0, 0])
       .add(G.sphere, 'skin', [s * 0.36, 1.08, 1.5], [0.05, 0.13, 0.06], [-0.4, 0, 0])
@@ -612,14 +627,18 @@ const SPINO = once(() => {
     for (const s of [-1, 1]) jaw.add(G.cone, 'tooth', [s * 0.075, 1.78, 2.3 + i * 0.12], [0.018, 0.06, 0.018]);
   }
 
-  const tail1 = new Kit().add(G.sphere, 'skin', [0, 1.3, -1.25], [0.38, 0.4, 0.75]);
+  const tail1 = new Kit()
+    .add(G.sphere, 'skin', [0, 1.32, -0.8], [0.38, 0.44, 0.45])
+    .between(G.frustum, 'skin', [0, 1.32, -0.8], [0, 1.27, -1.95], [0.38, 0.44]);
   const tail2 = new Kit()
-    .add(G.sphere, 'skin', [0, 1.24, -2.35], [0.22, 0.26, 0.7])
-    .add(G.sphere, 'accent', [0, 1.5, -2.4], [0.035, 0.18, 0.55]);
+    .add(G.sphere, 'skin', [0, 1.27, -1.92], [0.2, 0.23, 0.22])
+    .between(G.frustum, 'skin', [0, 1.27, -1.92], [0, 1.21, -3.0], [0.2, 0.24])
+    .add(sailGeometry(-3.0, -1.95, 0.3, 0.045, true), 'accent', [0, 1.4, 0]);
   const tail3 = new Kit()
-    .add(G.sphere, 'skin', [0, 1.16, -3.4], [0.12, 0.16, 0.55])
-    .add(G.sphere, 'accent', [0, 1.38, -3.4], [0.03, 0.22, 0.5])
-    .add(G.sphere, 'accent', [0, 0.98, -3.45], [0.03, 0.13, 0.4]);
+    .add(G.sphere, 'skin', [0, 1.21, -2.98], [0.11, 0.13, 0.12])
+    .between(G.frustum, 'skin', [0, 1.21, -2.98], [0, 1.15, -4.05], [0.11, 0.13])
+    .add(sailGeometry(-4.1, -2.98, 0.36, 0.04, true), 'accent', [0, 1.27, 0])
+    .add(sailGeometry(-4.0, -3.15, 0.3, 0.04, false), 'accent', [0, 1.15, 0], [1, -0.7, 1]);
 
   const x = SP.knee[0];
   const leg = new Kit().add(G.sphere, 'skin', [x, 0.92, -0.02], [0.2, 0.4, 0.3], [0.2, 0, 0]);
@@ -734,7 +753,7 @@ function Spino({ mats, skin, animRef }: { mats: SlotMats; skin: THREE.MeshStanda
 
 // ================================================================= public
 /** Approximate model heights (top of head/sail) for placing name tags / health bars. */
-export const DINO_HEIGHT: Record<DinoType, number> = { raptor: 1.9, ankylo: 1.6, ptero: 1.5, spino: 2.6 };
+export const DINO_MODEL_HEIGHT: Record<DinoType, number> = { raptor: 1.9, ankylo: 1.6, ptero: 1.5, spino: 2.6 };
 
 export function DinoModel(props: { type: DinoType; accent: string; animRef: AnimRef }) {
   const { type, accent, animRef } = props;

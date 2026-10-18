@@ -18,7 +18,8 @@ import { interpolate, world, type Ent } from '../world';
 import { DINO_HEIGHT } from './LocalPlayer';
 import { terrainHeight } from './Terrain';
 
-const ENEMY_HEIGHT: Record<EnemyType, number> = { megalania: 2.2, sarcosuchus: 2.4, titanoboa: 3.4 };
+// where health bars float: model height + a little headroom
+const ENEMY_HEIGHT: Record<EnemyType, number> = { megalania: 2.0, sarcosuchus: 2.3, titanoboa: 2.6 };
 
 // ---------------------------------------------------------------- health bar
 const barGeo = new THREE.PlaneGeometry(1, 1);

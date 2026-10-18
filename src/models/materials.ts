@@ -112,9 +112,9 @@ export function ghostMat(valid: boolean): THREE.MeshStandardMaterial {
     m = new THREE.MeshStandardMaterial({
       color: col,
       emissive: col,
-      emissiveIntensity: 0.35,
+      emissiveIntensity: 0.8,
       transparent: true,
-      opacity: 0.45,
+      opacity: 0.62,
       depthWrite: false,
       flatShading: true,
       roughness: 0.8,
@@ -165,6 +165,8 @@ export const G = {
   cone4: new THREE.ConeGeometry(1, 1, 4),
   cyl: new THREE.CylinderGeometry(1, 1, 1, 7),
   cylTaper: new THREE.CylinderGeometry(0.7, 1, 1, 7),
+  /** strongly tapered round frustum (top radius 0.5), for tails / necks */
+  frustum: new THREE.CylinderGeometry(0.5, 1, 1, 8),
   /** square-section frustum, top (narrow) at +y */
   taper4: new THREE.CylinderGeometry(0.6, 1, 1, 4).rotateY(Math.PI / 4),
   /** triangular prism along Z, apex up (+1), base at y=-0.5 with half-width 0.866 */

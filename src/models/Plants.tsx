@@ -30,7 +30,7 @@ type Pal = Record<string, string>;
 const BASE: Record<PlantSpecies, Pal> = {
   snapjaw: { leaf: '#4f9a3a', leaf2: '#6dbb47', stem: '#3d7a2c', pod: '#d23c3c', podSpot: '#ffd84a', thorn: '#7a2a3a' },
   thornberry: { leaf: '#2f6b35', leaf2: '#3d7d3f', stem: '#5a3d22', thorn: '#d9c9a0', berry: '#27408b', berryHi: '#7f9be0' },
-  wanderroot: { root: '#c7793a', rootDark: '#8a4f24', leaf: '#5aa83c', leaf2: '#7ccc4a' },
+  wanderroot: { root: '#c7793a', rootDark: '#8a4f24', rootLine: '#a8622e', leaf: '#5aa83c', leaf2: '#7ccc4a' },
   glowcap: { stem: '#f2efe4', gill: '#a8ece6', spot: '#ffffff' },
   sunbloom: { stem: '#4d8f32', leaf: '#5aa83c', leaf2: '#3f7a2a', center: '#6b3f1d', seed: '#3b220f', petal: '#ffcc22', petal2: '#ff9a1f', bud: '#6aa53e' },
 };
@@ -49,8 +49,8 @@ function saturate(c: string, k: number): string {
   return r;
 }
 
-const CAP = mat('#3ff2e0', { emissive: '#2fe6d6', ei: 1.7, rough: 0.5 });
-const CAP_FERAL = mat('#d14fe0', { emissive: '#c02cd8', ei: 1.4, rough: 0.5 });
+const CAP = mat('#22c9bb', { emissive: '#14cbbb', ei: 1.1, rough: 0.5 });
+const CAP_FERAL = mat('#b23fd0', { emissive: '#a020c0', ei: 1.0, rough: 0.5 });
 const NECTAR = mat('#ffd54a', { emissive: '#ffb300', ei: 1.2, rough: 0.3 });
 
 function plantMats(species: PlantSpecies, wild: boolean, feral: boolean): SlotMats {
@@ -68,7 +68,7 @@ function plantMats(species: PlantSpecies, wild: boolean, feral: boolean): SlotMa
 }
 
 // ---------------------------------------------------------------- tamed glow
-const GLOW_DISC = glowMat('#ffd76a', 0.28, true);
+const GLOW_DISC = glowMat('#ffc94a', 0.16, true);
 const SPARK = glowMat('#ffe9a0', 0.9, true);
 
 function TameGlow({ r }: { r: number }) {
@@ -109,14 +109,14 @@ function addFrond(k: Kit, slot: string, angle: number, len: number, lift: number
     const u1 = (i + 1) / N;
     const a = pt(u0);
     const b = pt(u1);
-    k.between(G.box, slot, a, b, 0.035 * (1 - u0 * 0.6));
-    const L = 0.24 * len * (1 - u0 * 0.75);
+    k.between(G.box, slot, a, b, 0.05 * (1 - u0 * 0.6));
+    const L = 0.3 * len * (1 - u0 * 0.7);
     for (const s of [-1, 1]) {
       const px = dz * s;
       const pz = -dx * s;
       const dir: V3 = [px + (b[0] - a[0]) * 2, -0.25 + (b[1] - a[1]) * 2, pz + (b[2] - a[2]) * 2];
       const dl = Math.hypot(...dir);
-      k.addDir(G.sphere, slot, [a[0] + (dir[0] / dl) * L * 0.5, a[1] + (dir[1] / dl) * L * 0.5, a[2] + (dir[2] / dl) * L * 0.5], dir, [0.035, L * 0.55, 0.035]);
+      k.addDir(G.sphere, slot, [a[0] + (dir[0] / dl) * L * 0.5, a[1] + (dir[1] / dl) * L * 0.5, a[2] + (dir[2] / dl) * L * 0.5], dir, [0.06, L * 0.55, 0.03]);
     }
     if (thorns && i % 2 === 1) thorns.add(G.cone, 'thorn', [a[0], a[1] + 0.05, a[2]], [0.025, 0.12, 0.025]);
   }
@@ -137,8 +137,8 @@ function fib(n: number, minY = -1): V3[] {
 const SNAPJAW = once(() => {
   const fronds = new Kit();
   const thorns = new Kit();
-  for (let i = 0; i < 6; i++) addFrond(fronds, 'leaf', (i / 6) * PI * 2 + 0.26, 0.85, 2.0, 1.6, thorns);
-  for (let i = 0; i < 4; i++) addFrond(fronds, 'leaf2', (i / 4) * PI * 2 + 0.8, 0.55, 2.8, 1.9, thorns);
+  for (let i = 0; i < 6; i++) addFrond(fronds, 'leaf', (i / 6) * PI * 2 + 0.26, 0.95, 2.0, 1.6, thorns);
+  for (let i = 0; i < 4; i++) addFrond(fronds, 'leaf2', (i / 4) * PI * 2 + 0.8, 0.65, 2.8, 1.9, thorns);
   const POD: V3 = [0, 0.86, 0.06];
   const pod = new Kit()
     .between(G.cyl, 'stem', [0, 0, 0], [0, 0.72, 0.04], 0.035)
@@ -191,8 +191,8 @@ const WR_LEGS: V3[] = [
 const WANDERROOT = once(() => {
   const bulb = new Kit()
     .add(G.ball, 'root', [0, 0, 0], [0.42, 0.5, 0.42])
-    .add(G.torus, 'rootDark', [0, 0.12, 0], [0.4, 0.4, 0.8], [PI / 2, 0, 0])
-    .add(G.torus, 'rootDark', [0, -0.18, 0], [0.38, 0.38, 0.8], [PI / 2, 0, 0])
+    .add(G.torus, 'rootLine', [0, 0.1, 0], [0.405, 0.405, 0.3], [PI / 2, 0, 0])
+    .add(G.torus, 'rootLine', [0, -0.22, 0], [0.36, 0.36, 0.3], [PI / 2, 0, 0])
     .add(G.cone, 'rootDark', [0, -0.55, 0], [0.12, 0.25, 0.12], [PI, 0, 0])
     .add(G.cone, 'rootDark', [0.2, -0.38, 0.05], [0.05, 0.22, 0.05], [PI * 0.8, 0, 0.6])
     .add(G.sphere, 'leaf2', [0, 0.52, 0], [0.09, 0.1, 0.09])
@@ -386,7 +386,7 @@ function Glowcap({ mats, feral, seed }: SpProps) {
     sway(g.current, t, seed, feral, 0.4);
     const b = feral ? 1 + Math.sin(t * 7) * 0.06 : 1 + Math.sin(t * 2) * 0.02;
     g.current.scale.set(1, b, 1);
-    if (feral) CAP_FERAL.emissiveIntensity = 1.1 + Math.sin(state.clock.elapsedTime * 6) * 0.6;
+    if (feral) CAP_FERAL.emissiveIntensity = 0.8 + Math.sin(state.clock.elapsedTime * 6) * 0.5;
   });
   return (
     <group ref={g}>
@@ -443,7 +443,7 @@ export function PlantModel(props: { species: PlantSpecies; stage: number; wild: 
       <group rotation={[wild ? rnd.tilt : 0, yaw, wild ? -rnd.tilt : 0]}>
         <Comp mats={mats} stage={wild ? Math.max(st, 2) : st} feral={feral} wild={wild} walking={walking} seed={rnd.seed} />
       </group>
-      {tamed && !feral && <TameGlow r={0.8} />}
+      {tamed && !feral && <TameGlow r={0.7} />}
     </group>
   );
 }

@@ -39,7 +39,7 @@ const PAL: Record<string, string> = {
 };
 const BASE_MATS: SlotMats = Object.fromEntries(Object.entries(PAL).map(([k, v]) => [k, mat(v)]));
 BASE_MATS.water = mat('#3fa7d6', { rough: 0.15, emissive: '#0d4a6e', ei: 0.4 });
-BASE_MATS.orb = mat('#9effe0', { emissive: '#5fffc8', ei: 2.6, rough: 0.3 });
+BASE_MATS.orb = mat('#6dffc8', { emissive: '#3dffb0', ei: 1.8, rough: 0.3 });
 
 const rnd = (i: number, salt: number) => hash01(i, salt);
 const pick = (i: number, salt: number, slots: string[]) => slots[Math.floor(rnd(i, salt) * slots.length) % slots.length];

@@ -1,6 +1,7 @@
 import { useThree } from '@react-three/fiber';
 import { useEffect } from 'react';
 import { initInput } from '../input';
+import { Effects } from './Effects';
 import { Animals, Buildings, Enemies, Nature, Plants, Projectiles, RemotePlayers } from './Entities';
 import { Environment } from './Environment';
 import { LocalPlayer } from './LocalPlayer';
@@ -29,6 +30,7 @@ export function Scene() {
       <LocalPlayer />
       <TileCursor />
       <BuildGhost />
+      <Effects />
     </>
   );
 }

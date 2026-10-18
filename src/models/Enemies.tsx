@@ -19,6 +19,7 @@ import {
   damp,
   lerp,
   mat,
+  mix,
   once,
   shade,
   snap,
@@ -30,7 +31,7 @@ import {
 
 type Grp = THREE.Group;
 const PI = Math.PI;
-const SLOW_TINT = new THREE.Color(0.04, 0.1, 0.32);
+const SLOW_TINT = new THREE.Color(0.0, 0.015, 0.05);
 
 const PAL: Record<EnemyType, { skin: string; belly: string; dark: string; band: string; eye: string }> = {
   megalania: { skin: '#4e3946', belly: '#a08a6a', dark: '#2f222b', band: '#7d6450', eye: '#ffd23f' },
@@ -69,10 +70,11 @@ function sprawlLeg(x0: number, y0: number, z0: number, reach: number, k: number)
   const kit = new Kit()
     .add(G.sphere, 'skin', [x0 + reach * 0.45, y0 - 0.02, z0], [reach * 0.58, 0.11 * k, 0.12 * k])
     .add(G.sphere, 'skin', [ex, y0 - 0.05, z0], 0.1 * k)
-    .between(G.cyl, 'skin', [ex, y0 - 0.05, z0], [ex + 0.06, 0.07, z0 + 0.03], 0.08 * k)
-    .add(G.box, 'dark', [ex + 0.07, 0.03, z0 + 0.1 * k], [0.2 * k, 0.06, 0.25 * k]);
+    .between(G.cyl, 'skin', [ex, y0 - 0.05, z0], [ex + 0.2, 0.07, z0 + 0.03], 0.08 * k)
+    .add(G.sphere, 'skin', [ex + 0.2, 0.07, z0 + 0.03], 0.075 * k)
+    .add(G.box, 'dark', [ex + 0.21, 0.03, z0 + 0.1 * k], [0.2 * k, 0.06, 0.25 * k]);
   for (const dx of [-0.07, 0, 0.07]) {
-    kit.add(G.cone, 'claw', [ex + 0.07 + dx * k, 0.03, z0 + 0.25 * k], [0.025 * k, 0.08 * k, 0.025 * k], [PI / 2, 0, 0]);
+    kit.add(G.cone, 'claw', [ex + 0.21 + dx * k, 0.03, z0 + 0.25 * k], [0.025 * k, 0.08 * k, 0.025 * k], [PI / 2, 0, 0]);
   }
   return kit.build();
 }
@@ -150,7 +152,7 @@ const MEGALANIA = once(() => {
     .add(G.sphere, 'band', [0, 0.92, 1.45], [0.16, 0.05, 0.2])
     .add(G.sphere, 'dark', [0.07, 0.82, 2.13], 0.022)
     .add(G.sphere, 'dark', [-0.07, 0.82, 2.13], 0.022);
-  for (const s of [-1, 1]) head.add(G.box, 'dark', [s * 0.17, 0.93, 1.64], [0.12, 0.04, 0.2], [0, s * 0.2, 0]);
+  for (const s of [-1, 1]) head.add(G.box, 'dark', [s * 0.16, 0.925, 1.64], [0.1, 0.025, 0.18], [0, s * 0.2, s * -0.3]);
   addEyes(head, 0.2, 0.9, 1.66, 0.065, { eye: 'eyeY', slit: true, fwd: 0.3 });
   const jaw = new Kit()
     .add(G.sphere, 'belly', [0, 0.67, 1.75], [0.22, 0.08, 0.4])
@@ -352,7 +354,7 @@ function Quadruped(props: {
     body.current.rotation.y = sw * gait.yaw * A + undul * 0.06;
     body.current.position.set(0, J.body[1] + Math.abs(sw) * 0.025 * A - W * 0.15, atk * 0.35);
     head.current.rotation.y = -sw * gait.yaw * 0.7 * A + Math.sin(t * 0.6) * 0.15 * (1 - A) - undul * 0.04;
-    head.current.rotation.x = -atk * 0.25;
+    head.current.rotation.x = -atk * 0.3;
     jaw.current.rotation.x = snap(now, a.attackAt, gait.atkMs) * gait.jawOpen + Math.max(0, Math.sin(t * 0.5) - 0.9) * 1.5;
 
     const tf = lerp(1.2, 3, W);
@@ -516,9 +518,9 @@ function TitanoboaHead(props: { mats: SlotMats; skin: THREE.MeshStandardMaterial
     const open = snap(now, a.attackAt, 450);
     const lunge = bump(now, a.attackAt, 450);
     sway.current.rotation.y = Math.sin(t * 2.2) * 0.09 * s.A + Math.sin(t * 0.5) * 0.06;
-    sway.current.position.set(0, lunge * 0.25 + Math.sin(t * 1.4) * 0.03, lunge * 0.6);
-    skull.current.rotation.x = -open * 0.5;
-    jaw.current.rotation.x = open * 0.55;
+    sway.current.position.set(0, lunge * 0.45 + Math.sin(t * 1.4) * 0.03, lunge * 0.6);
+    skull.current.rotation.x = -open * 0.6;
+    jaw.current.rotation.x = open * 0.28;
     tongueFlick(s, t, tongue.current);
     tongue.current.visible = tongue.current.visible && open < 0.1;
     applyHurt(root.current, skin, now, a.hurtAt, slowRef.current ? SLOW_TINT : undefined);
@@ -550,11 +552,11 @@ export function EnemyModel(props: { type: EnemyType; animRef: AnimRef; slowed?: 
   switch (type) {
     case 'megalania':
       return (
-        <Quadruped P={MEGALANIA()} J={MG} mats={mats} skin={skin} animRef={animRef} slowed={slowed} gait={{ freq: 1.5, yaw: 0.14, atkMs: 300, jawOpen: 0.6 }} />
+        <Quadruped P={MEGALANIA()} J={MG} mats={mats} skin={skin} animRef={animRef} slowed={slowed} gait={{ freq: 1.5, yaw: 0.14, atkMs: 300, jawOpen: 0.5 }} />
       );
     case 'sarcosuchus':
       return (
-        <Quadruped P={SARCO()} J={SC} mats={mats} skin={skin} animRef={animRef} slowed={slowed} gait={{ freq: 1.6, yaw: 0.07, atkMs: 380, jawOpen: 0.7 }} />
+        <Quadruped P={SARCO()} J={SC} mats={mats} skin={skin} animRef={animRef} slowed={slowed} gait={{ freq: 1.6, yaw: 0.07, atkMs: 380, jawOpen: 0.4 }} />
       );
     case 'titanoboa':
       return <TitanoboaHead mats={mats} skin={skin} animRef={animRef} slowed={slowed} />;
@@ -592,9 +594,10 @@ export function TitanoboaBody(props: { headRef: RefObject<THREE.Object3D | null>
       m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     }
     const dark = shade(color, -0.5);
-    const light = shade(color, 0.08);
+    const alt = mix(color, '#8f9a3e', 0.45);
+    const band = shade(color, -0.22);
     for (let i = 0; i < SEGMENTS; i++) {
-      b.setColorAt(i, _col.set(i % 4 === 3 ? shade(color, -0.25) : i % 2 ? light : color));
+      b.setColorAt(i, _col.set(i % 4 === 3 ? band : i % 2 ? alt : color));
       s.setColorAt(i, _col.set(dark));
     }
     return { body: b, saddle: s };
@@ -685,12 +688,12 @@ export function TitanoboaBody(props: { headRef: RefObject<THREE.Object3D | null>
       // face toward the previous segment (toward the head)
       if (Math.abs(prevX - x) + Math.abs(prevZ - z) > 1e-3) _dummy.lookAt(prevX, prevY, prevZ);
       else _dummy.rotation.set(0, Math.atan2(dirX, dirZ), 0);
-      _dummy.scale.set(r, r * 0.82, r * 1.3);
+      _dummy.scale.set(r, r * 0.82, r * 0.9 + 0.45);
       _dummy.updateMatrix();
       body.setMatrixAt(i, _dummy.matrix);
       // dark saddle patch on top of each segment
       _dummy.position.y = yy + r * 0.62;
-      _dummy.scale.set(r * 0.62, r * 0.28, r * 0.72);
+      _dummy.scale.set(r * 0.62, r * 0.28, r * 0.5 + 0.2);
       _dummy.updateMatrix();
       saddle.setMatrixAt(i, _dummy.matrix);
       prevX = x;

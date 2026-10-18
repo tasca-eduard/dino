@@ -67,7 +67,7 @@ const _c2 = new THREE.Color();
 
 type Emit = (part: PartName, p: V3, rot: V3, scale: V3 | number, color: string, colorJitter?: number) => void;
 
-const BARK = ['#6e4a2e', '#8a6a3a', '#4a3526'];
+const BARK = ['#6e4a2e', '#8a6a3a', '#7a5a3e'];
 const NEEDLES = ['#2f5d3a', '#36663f', '#294f33'];
 const CYCAD = ['#4f8f3a', '#5c9a40'];
 const FERN = ['#4f8a3a', '#62a046'];
@@ -103,7 +103,7 @@ function layoutTree(v: number, id: number, depleted: boolean, emit: Emit) {
     // tree fern: thin fibrous trunk, drooping fronds
     const th = 4.6;
     emit('trunk', [0, 0, 0], [(h(1) - 0.5) * 0.1, 0, (h(2) - 0.5) * 0.1], [0.28, th, 0.28], BARK[2], 0.1);
-    emit('trunk', [0, th - 0.3, 0], [0, 0, 0], [0.36, 0.4, 0.36], '#3a2a1e', 0.05);
+    emit('trunk', [0, th - 0.3, 0], [0, 0, 0], [0.36, 0.4, 0.36], '#5a4030', 0.05);
     for (let i = 0; i < 10; i++) emit('frond', [0, th, 0], [-0.3 + h(i) * 0.2, (i / 10) * PI * 2 + h(21), 0], 2.4 + h(i + 40) * 0.4, FERN[i % 2], 0.1);
     for (let i = 0; i < 5; i++) emit('frond', [0, th + 0.05, 0], [-0.95, (i / 5) * PI * 2 + 0.6, 0], 1.5, FERN[1], 0.1);
   }
